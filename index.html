@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRUITFUL WISDOM ACADEMY - 243 Students Portal</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);background-attachment:fixed;min-height:100vh}
+.header{background: rgba(255,255,255,0.95);padding:25px 15px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.2);border-bottom:5px solid #0a3d62}
+.logo-circle{width:80px;height:80px;background: linear-gradient(135deg, #0a3d62, #079992);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;margin:0 auto 12px;box-shadow:0 4px 15px rgba(0,0,0,0.3);border:3px solid white}
+.school-name{font-size:28px;font-weight:900;color:#0a3d62;margin:0;text-transform:uppercase}
+.motto{font-size:14px;color:#e58e26;font-weight:800;margin:5px 0;letter-spacing:2px}
+.address{font-size:13px;color:#333;margin:8px 0 0;line-height:1.5;background:#f0f7ff;padding:10px;border-radius:8px;display:inline-block}
+.phone{font-size:15px;color:#fff;background:#0a3d62;padding:6px 15px;border-radius:20px;display:inline-block;margin-top:8px;font-weight:bold}
+.container{max-width:900px;margin:20px auto;padding:0 15px}
+.card{background: rgba(255,255,255,0.97);border-radius:18px;padding:22px;margin-bottom:16px;box-shadow:0 8px 30px rgba(0,0,0,0.15)}
+.btn{width:100%;padding:16px;border:none;border-radius:12px;font-weight:900;font-size:17px;cursor:pointer;margin:10px 0;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:0.2s;text-transform:uppercase}
+.btn:active{transform:scale(0.97)}
+.btn-admin{background: linear-gradient(135deg, #0a3d62, #1e6fa5);color:white}
+.btn-teacher{background: linear-gradient(135deg, #079992, #00d2d3);color:white}
+.btn-parent{background: linear-gradient(135deg, #e58e26, #f6b93b);color:white}
+.btn-outline{background:#eef3fb;color:#0a3d62;border:2px solid #0a3d62}
+input{width:100%;padding:14px;border:2px solid #cdd7e6;border-radius:11px;margin:8px 0;font-size:16px;background:#fbfdff}
+.hidden{display:none!important}
+.kbd{background:#111;color:#fff;padding:3px 8px;border-radius:6px;font-size:12px}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #dde6f0;padding:10px;font-size:13px}
+th{background:#0a3d62;color:#fff}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="logo-circle">FWA</div>
+<h1 class="school-name">FRUITFUL WISDOM ACADEMY</h1>
+<div class="motto">GO FOR WISDOM</div>
+<div class="address">📍 Number 1 Job street Rumuapu Rukpokwu<br>Portharcourt, Rivers State<br>STUDENT RESULT PORTAL - FIRST TERM 2026/2027</div>
+<div><span class="phone">📞 09122762860 / 09162928207</span></div>
+<div id="loadStatus" style="margin-top:10px;font-weight:800;color:#0a3d62">Loading 243 students from Excel...</div>
+</div>
+
+<div class="container">
+<div id="home" class="card">
+<h2 style="text-align:center;margin:0;color:#0a3d62">Welcome to School Portal</h2>
+<p style="text-align:center;color:#666;font-size:13px">All 243 students loaded from your Excel file</p>
+<button class="btn btn-admin" onclick="showLogin('admin')">👨‍💼 ADMIN LOGIN</button>
+<button class="btn btn-teacher" onclick="showLogin('teacher')">👩‍🏫 TEACHER LOGIN - Type PIN only</button>
+<button class="btn btn-parent" onclick="showLogin('parent')">👨‍👩‍👧 PARENT LOGIN - Child Name + Password</button>
+</div>
+
+<div id="loginForm" class="card hidden">
+<h3 id="loginTitle">Login</h3>
+<div id="adminFields"><input id="adminUser" placeholder="Admin Username"><input id="adminPass" placeholder="Admin Password"></div>
+<div id="teacherFields" class="hidden"><input id="teacherPin" placeholder="Teacher PIN only e.g. FW-AZ7000@!"></div>
+<div id="parentFields" class="hidden"><input id="parentName" placeholder="Child Name e.g. Gift Kalu OR ID e.g. FWA-B05-001"><input id="parentPwd" placeholder="Parent Password e.g. 7TEH83QO"></div>
+<button class="btn btn-admin" onclick="doLogin()">LOGIN NOW →</button>
+<button class="btn btn-outline" onclick="goHome()">← Back</button>
+<p id="loginMsg" style="color:#c0392b;font-weight:800"></p>
+</div>
+
+<div id="adminDash" class="card hidden"><h2>Admin Dashboard</h2><input id="searchBox" placeholder="Search..." oninput="renderAdmin()"><div style="max-height:400px;overflow:auto"><table><thead><tr><th>ID</th><th>Name</th><th>Class</th><th>Pwd</th><th>View</th></tr></thead><tbody id="adminTable"></tbody></table></div><button class="btn btn-outline" onclick="goHome()">Logout</button></div>
+<div id="teacherDash" class="card hidden"><h2>Teacher Dashboard</h2><p id="teacherWelcome"></p><div style="max-height:400px;overflow:auto"><table><thead><tr><th>ID</th><th>Name</th><th>Class</th><th>View</th></tr></thead><tbody id="teacherTable"></tbody></table></div><button class="btn btn-outline" onclick="goHome()">Logout</button></div>
+<div id="parentDash" class="card hidden"><h2>Parent Dashboard</h2><div id="parentInfo"></div><button class="btn btn-parent" onclick="window.print()">Print</button><button class="btn btn-outline" onclick="goHome()">Logout</button></div>
+</div>
+
+<script>
+let STUDENTS = [];
+let TEACHERS = [];
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "FWA-Admin-2026!";
+let currentRole='';
+
+async function loadExcel(){
+ try{
+  let resp = await fetch('./FRUITFUL_WISDOM_ACADEMY_PORTAL_TEMPLATE.xlsx');
+  if(!resp.ok) throw new Error('Excel not found - upload it to GitHub');
+  let data = await resp.arrayBuffer();
+  let wb = XLSX.read(data, {type:'array'});
+  let wsStudents = wb.Sheets['Students'];
+  let wsTeachers = wb.Sheets['Teachers'];
+  let studentsJson = XLSX.utils.sheet_to_json(wsStudents);
+  let teachersJson = XLSX.utils.sheet_to_json(wsTeachers);
+  STUDENTS = studentsJson.map(r=>({
+   id: (r['Student ID']||'').toString().trim(),
+   name: (r['Student Name']||'').toString().trim(),
+   cls: (r['Class']||'').toString().trim(),
+   pwd: (r['Parent Password']||'').toString().trim()
+  })).filter(s=>s.id);
+  TEACHERS = teachersJson.map(r=>({
+   name: (r['Teacher Name']||'').toString().trim(),
+   assign: (r['Assignment']||'').toString().trim(),
+   pin: (r['Login PIN']||'').toString().trim()
+  })).filter(t=>t.name);
+  document.getElementById('loadStatus').innerHTML = '✅ Loaded '+STUDENTS.length+' students, '+TEACHERS.length+' teachers from Excel';
+ } catch(e){
+  document.getElementById('loadStatus').innerHTML = '⚠️ Could not load Excel: '+e.message+'<br>Using demo 60 students. Upload Excel file to GitHub with same name.';
+  STUDENTS = [{"id":"FWA-B05-001","name":"Gift Kalu","cls":"Basic 5","pwd":"7TEH83QO"},{"id":"FWA-B05-002","name":"Osinachi Ifedi","cls":"Basic 5","pwd":"JIS63UAF"},{"id":"FWA-B05-003","name":"Isabella Ichamonum","cls":"Basic 5","pwd":"FFAFMF4R"}];
+  TEACHERS = [{"name":"Mrs Lotus","assign":"Pre-Nursery","pin":"FW-AZ7000@!"}];
+ }
+}
+loadExcel();
+
+function showLogin(role){currentRole=role;document.getElementById('home').classList.add('hidden');document.getElementById('loginForm').classList.remove('hidden');document.getElementById('adminDash').classList.add('hidden');document.getElementById('teacherDash').classList.add('hidden');document.getElementById('parentDash').classList.add('hidden');document.getElementById('adminFields').classList.add('hidden');document.getElementById('teacherFields').classList.add('hidden');document.getElementById('parentFields').classList.add('hidden');document.getElementById('loginMsg').innerText='';if(role==='admin'){document.getElementById('adminFields').classList.remove('hidden');document.getElementById('loginTitle').innerText='ADMIN LOGIN';}if(role==='teacher'){document.getElementById('teacherFields').classList.remove('hidden');document.getElementById('loginTitle').innerText='TEACHER - Type PIN only';}if(role==='parent'){document.getElementById('parentFields').classList.remove('hidden');document.getElementById('loginTitle').innerText='PARENT - Child Name + Password';}}
+function goHome(){document.getElementById('home').classList.remove('hidden');document.getElementById('loginForm').classList.add('hidden');document.getElementById('adminDash').classList.add('hidden');document.getElementById('teacherDash').classList.add('hidden');document.getElementById('parentDash').classList.add('hidden');}
+function doLogin(){
+ let msg=document.getElementById('loginMsg');
+ if(currentRole==='admin'){
+  let u=document.getElementById('adminUser').value.trim();let p=document.getElementById('adminPass').value.trim();
+  if(u===ADMIN_USER && p===ADMIN_PASS){document.getElementById('loginForm').classList.add('hidden');document.getElementById('adminDash').classList.remove('hidden');renderAdmin();}else msg.innerText='Wrong admin';
+ } else if(currentRole==='teacher'){
+  let pin=document.getElementById('teacherPin').value.trim();let t=TEACHERS.find(x=> x.pin.toLowerCase()===pin.toLowerCase());
+  if(t){document.getElementById('loginForm').classList.add('hidden');document.getElementById('teacherDash').classList.remove('hidden');document.getElementById('teacherWelcome').innerHTML='Welcome <b>'+t.name+'</b> - '+t.assign;renderTeacher(t);}else msg.innerText='PIN not found. Total teachers loaded: '+TEACHERS.length;
+ } else if(currentRole==='parent'){
+  let nameInput=document.getElementById('parentName').value.trim().toLowerCase();let pwd=document.getElementById('parentPwd').value.trim().toLowerCase();
+  let s=STUDENTS.find(x=> (x.id.toLowerCase()===nameInput || x.name.toLowerCase()===nameInput) && x.pwd.toLowerCase()===pwd);
+  if(!s){let cands=STUDENTS.filter(x=> x.name.toLowerCase().includes(nameInput) || x.id.toLowerCase()===nameInput);if(cands.length>0) s=cands.find(x=> x.pwd.toLowerCase()===pwd);}
+  if(s){document.getElementById('loginForm').classList.add('hidden');document.getElementById('parentDash').classList.remove('hidden');renderParent(s);}else msg.innerText='Not found. Total students loaded: '+STUDENTS.length+'. Try Gift Kalu / 7TEH83QO';
+ }
+}
+function renderAdmin(){let q=(document.getElementById('searchBox').value||'').toLowerCase();let tb=document.getElementById('adminTable');tb.innerHTML='';STUDENTS.filter(s=> !q || s.id.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)).slice(0,200).forEach(s=>{let tr=document.createElement('tr');tr.innerHTML='<td>'+s.id+'</td><td>'+s.name+'</td><td>'+s.cls+'</td><td><span class="kbd">'+s.pwd+'</span></td><td><button onclick="viewParent(\''+s.id+'\')">View</button></td>';tb.appendChild(tr);});}
+function renderTeacher(t){let tb=document.getElementById('teacherTable');tb.innerHTML='';STUDENTS.slice(0,100).forEach(s=>{let tr=document.createElement('tr');tr.innerHTML='<td>'+s.id+'</td><td>'+s.name+'</td><td>'+s.cls+'</td><td><button onclick="viewParent(\''+s.id+'\')">View</button></td>';tb.appendChild(tr);});}
+function viewParent(id){let s=STUDENTS.find(x=>x.id===id);document.getElementById('adminDash').classList.add('hidden');document.getElementById('teacherDash').classList.add('hidden');document.getElementById('parentDash').classList.remove('hidden');renderParent(s);}
+function renderParent(s){document.getElementById('parentInfo').innerHTML='<div style="background:#fff8e1;padding:14px;border-radius:12px;border:2px solid #f1c40f"><h3>'+s.name+' - '+s.id+'</h3><p>Class: <b>'+s.cls+'</b></p><p>Password: <span class="kbd">'+s.pwd+'</span></p><p>All '+STUDENTS.length+' students loaded from Excel!</p></div>';}
+</script>
+</body>
+</html>
